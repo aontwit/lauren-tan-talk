@@ -122,7 +122,7 @@ export function Presenter() {
       <section style={mainCol}>
         <div style={screen}>
           {deckId ? (
-            <iframe title="จอที่คนดูเห็น" src={mirror(0)} style={frame} />
+            <iframe title="จอที่คนดูเห็น" src={mirror(0)} style={frame} tabIndex={-1} />
           ) : (
             <div style={emptyScreen}>เปิดเด็คในอีกหน้าต่าง แล้วกด p ที่หน้าเด็ค</div>
           )}
@@ -158,7 +158,7 @@ export function Presenter() {
 
       <aside style={sideCol}>
         <div style={{ fontSize: 18, color: 'var(--deck-muted)' }}>หน้าถัดไป: {nxt ? nxt.name : 'จบแล้ว'}</div>
-        <div style={screen}>{deckId && nxt ? <iframe title="หน้าถัดไป" src={mirror(1)} style={frame} /> : null}</div>
+        <div style={screen}>{deckId && nxt ? <iframe title="หน้าถัดไป" src={mirror(1)} style={frame} tabIndex={-1} /> : null}</div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => send('prev')} style={btn}>
             ← ย้อน
@@ -187,7 +187,7 @@ const mainCol: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 
 const sideCol: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }
 const screen: CSSProperties = { aspectRatio: '16 / 9', width: '100%', border: '3px solid var(--deck-ink)', borderRadius: 12, overflow: 'hidden', background: 'var(--deck-bg)', flexShrink: 0 }
 const emptyScreen: CSSProperties = { height: '100%', display: 'grid', placeItems: 'center', fontSize: 22, color: 'var(--deck-muted)' }
-const frame: CSSProperties = { width: '100%', height: '100%', border: 0, display: 'block' }
+const frame: CSSProperties = { width: '100%', height: '100%', border: 0, display: 'block', pointerEvents: 'none' }
 const notesBox: CSSProperties = { flex: 1, minHeight: 0, overflow: 'auto', fontSize: 24, lineHeight: 1.55, borderTop: '3px solid var(--deck-ink)', paddingTop: 14 }
 const btn: CSSProperties = {
   font: 'inherit',

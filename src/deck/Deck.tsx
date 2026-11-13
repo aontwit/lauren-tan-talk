@@ -254,6 +254,21 @@ export function Deck() {
 
   // Keyboard: our keys drive the deck; every other key is kept away from tldraw
   // so no shortcut can edit or restyle the board during the talk.
+  // A mirror never takes input, but if focus lands inside it the speaker's
+  // arrow keys must still drive the talk, so it forwards them to the deck.
+  useEffect(() => {
+    if (!FOLLOW) return
+    const onKey = (e: KeyboardEvent) => {
+      const cmd = ['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key) ? 'next' : ['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key) ? 'prev' : null
+      if (!cmd) return
+      e.preventDefault()
+      e.stopPropagation()
+      channelRef.current?.send({ kind: 'cmd', to: FOLLOW, cmd })
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
+  }, [])
+
   useEffect(() => {
     if (FOLLOW) return
     const onKey = (e: KeyboardEvent) => {
@@ -328,7 +343,8 @@ export function Deck() {
   if (FOLLOW) {
     return (
       <div className="deck-show" style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
-        <Tldraw hideUi licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY} shapeUtils={shapeUtils} onMount={onMount} />
+        {/* autoFocus off: the mirror must not take keyboard focus from the speaker window */}
+        <Tldraw hideUi autoFocus={false} licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY} shapeUtils={shapeUtils} onMount={onMount} />
       </div>
     )
   }
