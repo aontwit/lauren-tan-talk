@@ -47,7 +47,7 @@ export const caseMap: SlideDef = {
         text(c, 1260, y + 62, b, { kind: 'small', w: R - 1260 })
       })
     })
-    at(c, 3, () => text(c, 1180, 850, 'เปิดให้ใช้ที่ pitwall.apiwit.xyz\nดัดแปลงจาก pstack: 20 หลักการ และ playbook หลายเล่ม', { kind: 'small', tone: 'muted', w: R - 1180 }))
+    at(c, 3, () => text(c, 1180, 850, 'pitwall.apiwit.xyz', { kind: 'small', tone: 'muted', w: R - 1180 }))
   },
 }
 

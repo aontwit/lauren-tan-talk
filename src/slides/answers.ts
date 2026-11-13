@@ -122,9 +122,6 @@ export const pstack: SlideDef = {
         card(c, x, 390, 370, 320, { kick: k, head: h, headKind: 'lead', headLines: 2, body: b || undefined, tone: i === 0 ? 'accent' : 'ink', fill: i === 0 ? 'tint' : 'paper' })
       })
     })
-    at(c, 3, () =>
-      text(c, L, 770, 'pstack ทำ 4 ขั้นนี้ให้ทุกงาน และทุก skill เป็นแค่ไฟล์ข้อความ ยกไปใช้กับ Claude Code ได้', { kind: 'body', w: W }),
-    )
   },
 }
 
@@ -159,7 +156,7 @@ export const army: SlideDef = {
         text(c, 1150, y + 56, b, { kind: 'small', w: R - 1150 })
       })
     })
-    at(c, 3, () => text(c, L, 890, '**pitwall รันหลายงานพร้อมกันได้** แต่ละงานแยก worktree และเปิด PR ของตัวเอง\nแต่ใน marketplace ยังทีละงาน เพราะ backend รับแค่ port 3000', { kind: 'body', w: W }))
+    at(c, 3, () => text(c, L, 890, '**pitwall รันหลายงานพร้อมกันได้** แต่ละงานแยก worktree และเปิด PR ของตัวเอง', { kind: 'body', w: W }))
   },
 }
 
@@ -195,7 +192,6 @@ export const roots: SlideDef = {
         text(c, R - 250, y + 44, from, { kind: 'tiny', tone: 'muted', w: 250, align: 'end' })
       })
     })
-    at(c, 2, () => text(c, L, 900, 'หนังสือไม่รู้ว่าเรากำลังทำอะไรอยู่ แต่ **skill รู้** เพราะมีบรรทัด “ใช้เมื่อ”', { kind: 'body', w: W }))
   },
 }
 
@@ -252,7 +248,7 @@ export const dune: SlideDef = {
         fill: 'tint',
       })
     })
-    at(c, 2, () => text(c, L, 880, '“shortest path is the best path” ทำให้ทางที่ถูกเป็นทางที่ง่ายที่สุด\nCI ที่เข้มน่ารำคาญสำหรับคน แต่ agent รับความน่ารำคาญนั้นแทนเรา', { kind: 'body', w: W }))
+    at(c, 2, () => text(c, L, 880, '“shortest path is the best path” ทำให้ทางที่ถูกเป็นทางที่ง่ายที่สุด', { kind: 'body', w: W }))
   },
 }
 
