@@ -4,9 +4,21 @@ import { ROWS } from '../slides'
 import { buildDeck, type BuiltDeck } from './build'
 import { findCollisions, reflowStacks } from './draw'
 
-/** The speaker view ("p") only exists when presenting from `npm run dev`. The
- * public build has no presenter window and no notes, so nobody can read them. */
-const SPEAKER_VIEW = import.meta.env.DEV
+/**
+ * "p" opens the speaker window. It works everywhere, but the key is only listed
+ * in the help when running locally, so the audience is never told about it.
+ * On the public site the notes are encrypted (see vite.config.ts).
+ */
+const LIST_P_IN_HELP = import.meta.env.DEV
+
+/**
+ * A deck opened with ?follow=<deck id> is a read-only mirror inside the
+ * speaker window: it shows whatever slide that deck shows (offset 1 = the next
+ * slide), never sends state, and takes no input.
+ */
+const params = new URLSearchParams(location.search)
+const FOLLOW = params.get('follow')
+const OFFSET = Number(params.get('offset') ?? 0)
 import { PitSceneUtil } from './shapes/PitScene'
 import { PortraitUtil } from './shapes/Portrait'
 import { newDeckId, openChannel, readHash, writeHash, type DeckMessage, type DeckState } from './sync'
@@ -72,8 +84,10 @@ export function Deck() {
   const publish = useCallback(() => {
     const deck = deckRef.current
     const { slide, step } = stateRef.current
-    writeHash(stateRef.current)
-    channelRef.current?.send({ kind: 'state', from: deckId, state: stateRef.current })
+    if (!FOLLOW) {
+      writeHash(stateRef.current)
+      channelRef.current?.send({ kind: 'state', from: deckId, state: stateRef.current })
+    }
     setView({ slide, step, maxStep: deck?.slides[slide].maxStep ?? 0, overview: overviewRef.current })
   }, [])
 
@@ -156,6 +170,13 @@ export function Deck() {
     (m: DeckMessage) => {
       const deck = deckRef.current
       if (!deck) return
+      if (FOLLOW) {
+        if (m.kind === 'state' && m.from === FOLLOW) {
+          const slide = m.state.slide + OFFSET
+          show(slide, OFFSET ? 0 : m.state.step, slide !== stateRef.current.slide)
+        }
+        return
+      }
       // Only answer messages meant for this window (a hello without a target asks every deck).
       if ((m.kind === 'cmd' || m.kind === 'goto') && m.to !== deckId) return
       if (m.kind === 'hello' && m.to && m.to !== deckId) return
@@ -194,11 +215,13 @@ export function Deck() {
       editor.selectNone()
       editor.setCurrentTool('hand')
 
-      const start = readHash()
+      const start = FOLLOW ? { slide: 0, step: 0 } : readHash()
       // The viewport is measured after mount; framing before that lands the
       // camera in the wrong place, so frame once now and again shortly after.
       show(start.slide, start.step, false)
       setTimeout(() => frame(stateRef.current.slide, false), 120)
+      // A mirror asks its deck where it is as soon as it can draw.
+      if (FOLLOW) channelRef.current?.send({ kind: 'hello', to: FOLLOW })
 
       if (import.meta.env.DEV) {
         ;(window as unknown as { __deck: unknown }).__deck = {
@@ -219,7 +242,8 @@ export function Deck() {
   useEffect(() => {
     const ch = openChannel((m) => handleRef.current(m))
     channelRef.current = ch
-    if (deckRef.current) publish()
+    if (FOLLOW) ch.send({ kind: 'hello', to: FOLLOW })
+    else if (deckRef.current) publish()
     return () => {
       ch.close()
       if (channelRef.current === ch) channelRef.current = null
@@ -229,6 +253,7 @@ export function Deck() {
   // Keyboard: our keys drive the deck; every other key is kept away from tldraw
   // so no shortcut can edit or restyle the board during the talk.
   useEffect(() => {
+    if (FOLLOW) return
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return
       e.stopPropagation()
@@ -252,7 +277,7 @@ export function Deck() {
         show(stateRef.current.slide, stateRef.current.step, true)
       } else if (k === '?') setHelp((h) => !h)
       else if (k === 'f') document.documentElement.requestFullscreen?.()
-      else if (k === 'p' && SPEAKER_VIEW) window.open(`${location.pathname}?presenter&deck=${deckId}${location.hash}`, 'lauren-tan-presenter', 'width=1100,height=760')
+      else if (k === 'p') window.open(`${location.pathname}?presenter&deck=${deckId}`, 'lauren-tan-presenter', 'width=1400,height=860')
       else return
       e.preventDefault()
     }
@@ -271,6 +296,7 @@ export function Deck() {
 
   // Hide the key help after a few seconds on first load.
   useEffect(() => {
+    if (FOLLOW) setHelp(false)
     const t = setTimeout(() => setHelp(false), 5000)
     return () => clearTimeout(t)
   }, [])
@@ -297,6 +323,14 @@ export function Deck() {
     prev()
   }
 
+  if (FOLLOW) {
+    return (
+      <div className="deck-show" style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+        <Tldraw hideUi licenseKey={import.meta.env.VITE_TLDRAW_LICENSE_KEY} shapeUtils={shapeUtils} onMount={onMount} />
+      </div>
+    )
+  }
+
   const progress = total > 1 ? (view.slide + (view.maxStep ? view.step / (view.maxStep + 1) : 0)) / (total - 1) : 0
 
   return (
@@ -315,7 +349,7 @@ export function Deck() {
       {digits && <div className="deck-goto">ไปหน้า {digits} ↵</div>}
       {view.overview && <div className="deck-banner">ภาพรวม · คลิกหน้าที่อยากไป หรือกด o เพื่อกลับ</div>}
       <div className={`deck-help ${help ? 'is-visible' : ''}`}>
-        <b>→</b> / คลิก ถัดไป · <b>←</b> / คลิกขวา ย้อน · <b>o</b> ภาพรวม · <b>เลข + ↵</b> ไปหน้านั้น {SPEAKER_VIEW && <>· <b>p</b> หน้าต่างผู้พูด </>}· <b>f</b> เต็มจอ · <b>?</b> ปุ่มลัด
+        <b>→</b> / คลิก ถัดไป · <b>←</b> / คลิกขวา ย้อน · <b>o</b> ภาพรวม · <b>เลข + ↵</b> ไปหน้านั้น {LIST_P_IN_HELP && <>· <b>p</b> หน้าต่างผู้พูด </>}· <b>f</b> เต็มจอ · <b>?</b> ปุ่มลัด
       </div>
     </div>
   )

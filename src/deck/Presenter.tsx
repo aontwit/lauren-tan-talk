@@ -1,26 +1,32 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { ROWS, SLIDES } from '../slides'
 import { buildDeck } from './build'
 import { glossAll } from './glossary'
+import { isLocked, savePass, savedPass, unlockNotes } from './notes'
 import { openChannel, type DeckState } from './sync'
 
 /**
- * Speaker view: open with "p" from the deck, or /?presenter. Shows notes, with
- * English terms explained in brackets the first time they come up, and the
- * next slide. Arrow keys here drive the audience window.
+ * Speaker view: open with "p" from the deck. Left, the slide exactly as the
+ * audience sees it (a live mirror of the deck) with the notes under it; right,
+ * the next slide and the controls. Arrow keys here drive the audience window.
+ * On the public site the notes are encrypted and unlock with a passphrase.
  */
 export function Presenter() {
   const [state, setState] = useState<DeckState>({ slide: 0, step: 0 })
   const channel = useRef<ReturnType<typeof openChannel> | null>(null)
   // The deck this window drives: the one that opened it ("p"), or else the
   // first deck that answers. Other deck tabs are ignored.
-  const deckRef = useRef<string | null>(new URLSearchParams(location.search).get('deck'))
+  const [deckId, setDeckId] = useState<string | null>(new URLSearchParams(location.search).get('deck'))
+  const deckRef = useRef(deckId)
   const [linked, setLinked] = useState(false)
 
   useEffect(() => {
     channel.current = openChannel((m) => {
       if (m.kind !== 'state') return
-      if (!deckRef.current) deckRef.current = m.from
+      if (!deckRef.current) {
+        deckRef.current = m.from
+        setDeckId(m.from)
+      }
       if (m.from !== deckRef.current) return
       setLinked(true)
       setState(m.state)
@@ -29,30 +35,62 @@ export function Presenter() {
     return () => channel.current?.close()
   }, [])
 
+  const send = (cmd: 'next' | 'prev') => deckRef.current && channel.current?.send({ kind: 'cmd', to: deckRef.current, cmd })
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const send = (cmd: 'next' | 'prev') => {
+      if ((e.target as HTMLElement)?.tagName === 'INPUT') return
+      if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) {
         e.preventDefault()
-        deckRef.current && channel.current?.send({ kind: 'cmd', to: deckRef.current, cmd })
+        send('next')
       }
-      if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) send('next')
-      if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) send('prev')
+      if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) {
+        e.preventDefault()
+        send('prev')
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // Notes: plain in `npm run dev`, encrypted on the public site, or absent.
+  const raw = useMemo(() => SLIDES.map((s) => s.notes), [])
+  const locked = raw.some(isLocked)
+  const empty = raw.every((n) => !n)
+  const [notes, setNotes] = useState<string[] | null>(locked ? null : raw)
+  const [pass, setPass] = useState('')
+  const [error, setError] = useState('')
+
+  const unlock = async (p: string, remember: boolean) => {
+    try {
+      const plain = await unlockNotes(raw, p)
+      if (remember) savePass(p)
+      setNotes(plain)
+      setError('')
+    } catch {
+      setError('รหัสไม่ถูก ลองอีกครั้ง')
+    }
+  }
+  useEffect(() => {
+    const p = savedPass()
+    if (locked && p) void unlock(p, false)
+  }, [])
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    void unlock(pass, true)
+  }
+
   const maxSteps = useMemo(() => buildDeck(ROWS).slides.map((s) => s.maxStep), [])
+  const glossed = useMemo(() => (notes ? glossAll(notes) : null), [notes])
   const cur = SLIDES[state.slide]
-  const max = maxSteps[state.slide] ?? 0
-  const left = max - state.step
   const nxt = SLIDES[state.slide + 1]
-  const glossed = useMemo(() => glossAll(SLIDES.map((s) => s.notes)), [])
-  const pieces = glossed[state.slide] ?? []
+  const left = (maxSteps[state.slide] ?? 0) - state.step
+  const pieces = glossed?.[state.slide] ?? []
+  const mirror = (offset: number) => `${location.pathname}?follow=${deckId}&offset=${offset}`
 
   return (
-    <div style={{ position: 'fixed', inset: 0, display: 'grid', gridTemplateRows: 'auto 1fr auto', gap: 24, padding: 32, boxSizing: 'border-box' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 22 }}>
+    <div style={page}>
+      <header style={bar}>
         <span>
           <b>
             {state.slide + 1} / {SLIDES.length}
@@ -63,39 +101,74 @@ export function Presenter() {
             {left > 0 ? `  ·  ยังมีอีก ${left} คลิกในหน้านี้` : '  ·  คลิกถัดไปเปลี่ยนหน้า'}
           </span>
         </span>
-      </div>
-      <div style={{ overflow: 'auto', fontSize: 26, lineHeight: 1.55, borderTop: '3px solid var(--deck-ink)', paddingTop: 20 }}>
-        {pieces.map((p, i) =>
-          p.meaning ? (
-            <span key={i}>
-              <b>{p.text}</b>
-              <span style={{ color: 'var(--deck-accent)' }}> ({p.meaning})</span>
-            </span>
-          ) : (
-            <span key={i}>{p.text}</span>
-          ),
-        )}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 20, color: 'var(--deck-muted)' }}>
-        <span>
-          หน้าถัดไป: {nxt ? nxt.name : 'จบแล้ว'}
-          <span style={{ marginLeft: 24, color: linked ? 'var(--deck-muted)' : 'var(--deck-accent)' }}>
-            {linked ? '● เชื่อมกับจอหลักแล้ว' : '○ ยังไม่เจอจอหลัก เปิดเด็คแล้วกด p'}
-          </span>
+        <span style={{ color: linked ? 'var(--deck-muted)' : 'var(--deck-accent)', fontSize: 18 }}>
+          {linked ? '● เชื่อมกับจอคนดูแล้ว' : '○ ยังไม่เจอจอคนดู เปิดเด็คแล้วกด p'}
         </span>
-        <span>
-          <button onClick={() => deckRef.current && channel.current?.send({ kind: 'cmd', to: deckRef.current, cmd: 'prev' })} style={btn}>
+      </header>
+
+      <section style={mainCol}>
+        <div style={screen}>{deckId ? <iframe title="จอที่คนดูเห็น" src={mirror(0)} style={frame} /> : null}</div>
+        <div style={notesBox}>
+          {glossed ? (
+            pieces.length ? (
+              pieces.map((p, i) =>
+                p.meaning ? (
+                  <span key={i}>
+                    <b>{p.text}</b>
+                    <span style={{ color: 'var(--deck-accent)' }}> ({p.meaning})</span>
+                  </span>
+                ) : (
+                  <span key={i}>{p.text}</span>
+                ),
+              )
+            ) : (
+              <span style={{ color: 'var(--deck-muted)' }}>{empty ? 'เวอร์ชันนี้ไม่มีบทพูด' : 'หน้านี้ไม่มีบทพูด'}</span>
+            )
+          ) : (
+            <form onSubmit={onSubmit} style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span>ใส่รหัสเพื่อเปิดบทพูด</span>
+              <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoFocus style={input} />
+              <button type="submit" style={btn}>
+                เปิด
+              </button>
+              {error && <span style={{ color: 'var(--deck-accent)' }}>{error}</span>}
+            </form>
+          )}
+        </div>
+      </section>
+
+      <aside style={sideCol}>
+        <div style={{ fontSize: 18, color: 'var(--deck-muted)' }}>หน้าถัดไป: {nxt ? nxt.name : 'จบแล้ว'}</div>
+        <div style={screen}>{deckId && nxt ? <iframe title="หน้าถัดไป" src={mirror(1)} style={frame} /> : null}</div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => send('prev')} style={btn}>
             ← ย้อน
-          </button>{' '}
-          <button onClick={() => deckRef.current && channel.current?.send({ kind: 'cmd', to: deckRef.current, cmd: 'next' })} style={btn}>
+          </button>
+          <button onClick={() => send('next')} style={{ ...btn, flex: 1 }}>
             ถัดไป →
           </button>
-        </span>
-      </div>
+        </div>
+      </aside>
     </div>
   )
 }
 
+const page: CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  display: 'grid',
+  gridTemplateColumns: 'minmax(0, 3fr) minmax(0, 2fr)',
+  gridTemplateRows: 'auto minmax(0, 1fr)',
+  gap: 24,
+  padding: 24,
+  boxSizing: 'border-box',
+}
+const bar: CSSProperties = { gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 22, gap: 16 }
+const mainCol: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 16, minHeight: 0 }
+const sideCol: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }
+const screen: CSSProperties = { aspectRatio: '16 / 9', width: '100%', border: '3px solid var(--deck-ink)', borderRadius: 12, overflow: 'hidden', background: 'var(--deck-bg)', flexShrink: 0 }
+const frame: CSSProperties = { width: '100%', height: '100%', border: 0, display: 'block' }
+const notesBox: CSSProperties = { flex: 1, minHeight: 0, overflow: 'auto', fontSize: 24, lineHeight: 1.55, borderTop: '3px solid var(--deck-ink)', paddingTop: 14 }
 const btn: CSSProperties = {
   font: 'inherit',
   fontSize: 20,
@@ -106,3 +179,4 @@ const btn: CSSProperties = {
   color: 'var(--deck-ink)',
   cursor: 'pointer',
 }
+const input: CSSProperties = { font: 'inherit', fontSize: 20, padding: '6px 12px', border: '3px solid var(--deck-ink)', borderRadius: 12, background: 'var(--deck-bg)' }

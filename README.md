@@ -18,7 +18,7 @@ npm run dev        # http://localhost:5173
 | `o` | overview of the whole board, one row per part of the talk; click a slide to jump there |
 | number then `Enter` | jump to that slide (e.g. `15` `Enter`) |
 | `Esc` | back to the current slide |
-| `p` | open the presenter window (notes, clicks left on this slide, next slide). Local `npm run dev` only: the public build has no presenter window and strips every speaker note. |
+| `p` | open the speaker window: the slide the audience sees, your notes under it, the next slide, clicks left. Not listed in the on-screen help of the public site. |
 | `f` | fullscreen |
 | `?` | show or hide the key help |
 
@@ -48,3 +48,7 @@ To add a click-by-click reveal, wrap shapes in `at(c, n, () => …)`.
 ## Note on tldraw licensing
 
 tldraw is free to use in development, but it shows a small "made with tldraw" mark. To remove it, get a license key from tldraw.dev, copy `.env.example` to `.env.local`, put the key in `VITE_TLDRAW_LICENSE_KEY`, and restart `npm run dev`. Hosting the deck publicly also needs a key.
+
+## Speaker notes on the public site
+
+The notes never ship as readable text. The GitHub Pages build encrypts them with the `NOTES_PASSPHRASE` repo secret (Settings → Secrets and variables → Actions). In the speaker window, type that passphrase once; it is kept for that browser tab only. Without the secret, the build leaves the notes out. `npm run dev` shows them as they are.

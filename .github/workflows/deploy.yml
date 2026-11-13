@@ -28,6 +28,8 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
+          # Speaker notes are encrypted with this passphrase; without it they are left out.
+          NOTES_PASSPHRASE: ${{ secrets.NOTES_PASSPHRASE }}
           # Optional: add a tldraw license key as a repo secret to remove the watermark.
           VITE_TLDRAW_LICENSE_KEY: ${{ secrets.TLDRAW_LICENSE_KEY }}
       - uses: actions/upload-pages-artifact@v3
