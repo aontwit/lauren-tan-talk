@@ -18,7 +18,7 @@ npm run dev        # http://localhost:5173
 | `o` | overview of the whole board, one row per part of the talk; click a slide to jump there |
 | number then `Enter` | jump to that slide (e.g. `15` `Enter`) |
 | `Esc` | back to the current slide |
-| `p` | open the presenter window (notes, clicks left on this slide, next slide, timer) |
+| `p` | open the presenter window (notes, clicks left on this slide, next slide). Local `npm run dev` only: the public build has no presenter window and strips every speaker note. |
 | `f` | fullscreen |
 | `?` | show or hide the key help |
 

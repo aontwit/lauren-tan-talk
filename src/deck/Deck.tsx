@@ -3,6 +3,10 @@ import { Box, Tldraw, type Editor, type TLShapePartial } from 'tldraw'
 import { ROWS } from '../slides'
 import { buildDeck, type BuiltDeck } from './build'
 import { findCollisions, reflowStacks } from './draw'
+
+/** The speaker view ("p") only exists when presenting from `npm run dev`. The
+ * public build has no presenter window and no notes, so nobody can read them. */
+const SPEAKER_VIEW = import.meta.env.DEV
 import { PitSceneUtil } from './shapes/PitScene'
 import { PortraitUtil } from './shapes/Portrait'
 import { newDeckId, openChannel, readHash, writeHash, type DeckMessage, type DeckState } from './sync'
@@ -248,7 +252,7 @@ export function Deck() {
         show(stateRef.current.slide, stateRef.current.step, true)
       } else if (k === '?') setHelp((h) => !h)
       else if (k === 'f') document.documentElement.requestFullscreen?.()
-      else if (k === 'p') window.open(`${location.pathname}?presenter&deck=${deckId}${location.hash}`, 'lauren-tan-presenter', 'width=1100,height=760')
+      else if (k === 'p' && SPEAKER_VIEW) window.open(`${location.pathname}?presenter&deck=${deckId}${location.hash}`, 'lauren-tan-presenter', 'width=1100,height=760')
       else return
       e.preventDefault()
     }
@@ -311,7 +315,7 @@ export function Deck() {
       {digits && <div className="deck-goto">ไปหน้า {digits} ↵</div>}
       {view.overview && <div className="deck-banner">ภาพรวม · คลิกหน้าที่อยากไป หรือกด o เพื่อกลับ</div>}
       <div className={`deck-help ${help ? 'is-visible' : ''}`}>
-        <b>→</b> / คลิก ถัดไป · <b>←</b> / คลิกขวา ย้อน · <b>o</b> ภาพรวม · <b>เลข + ↵</b> ไปหน้านั้น · <b>p</b> หน้าต่างผู้พูด · <b>f</b> เต็มจอ · <b>?</b> ปุ่มลัด
+        <b>→</b> / คลิก ถัดไป · <b>←</b> / คลิกขวา ย้อน · <b>o</b> ภาพรวม · <b>เลข + ↵</b> ไปหน้านั้น {SPEAKER_VIEW && <>· <b>p</b> หน้าต่างผู้พูด </>}· <b>f</b> เต็มจอ · <b>?</b> ปุ่มลัด
       </div>
     </div>
   )

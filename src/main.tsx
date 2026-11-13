@@ -52,7 +52,8 @@ async function boot() {
     )
     return
   }
-  const isPresenter = new URLSearchParams(location.search).has('presenter')
+  // Speaker view is local only: the public build ignores ?presenter (see vite.config.ts).
+  const isPresenter = import.meta.env.DEV && new URLSearchParams(location.search).has('presenter')
   root.render(<StrictMode>{isPresenter ? <Presenter /> : <Deck />}</StrictMode>)
 }
 
