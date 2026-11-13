@@ -19,7 +19,7 @@ export const ROWS: Row[] = [
   { label: 'ข้อแรก · ตัวตรวจ', slides: [prove, laurenVerify, overnight] },
   { label: 'ข้อสอง · skill คุณภาพสูง', slides: [pstack, army, roots, language] },
   { label: 'ข้อสาม · โค้ดที่ทำผิดได้ยาก', slides: [dune, encode] },
-  { label: 'pitwall ของฉัน', slides: [caseIntro, caseMap, ucDaytime, caseVerify, morning] },
+  { label: 'pitwall ของผม', slides: [caseIntro, caseMap, ucDaytime, caseVerify, morning] },
   { label: 'เริ่มยังไง', slides: [callback, roles, rollout, contributions] },
   { label: 'ภาคผนวก', slides: [faqStart, faqSafety, faqWorth, sources] },
 ]
