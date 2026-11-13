@@ -13,7 +13,7 @@ export const cover: SlideDef = {
     text(c, L, 330, 'กองทัพ Agent แบบ Lauren Tan', { kind: 'display', w: W })
     line(c, L + 6, 492, 1180, 484, { tone: 'accent', bend: -10, bold: true })
     text(c, L, 540, 'ทำยังไงให้ไว้ใจ AI agent จนกล้าปล่อยให้ทำงานเอง', { kind: 'lead', w: W })
-    text(c, L, 880, 'Apiwit', { kind: 'body', tone: 'muted' })
+    text(c, L, 880, 'Apiwit Thammachai', { kind: 'body', tone: 'muted' })
     // Photo: put your own image file at public/lauren-tan.jpg
     custom(c, 'portrait', 1490, 600, { w: 300, h: 340, src: 'lauren-tan.jpg', initials: 'LT' })
     text(c, 1490, 952, 'Lauren Tan · @poteto', { kind: 'tiny', tone: 'muted', w: 300, align: 'middle' })
