@@ -121,7 +121,7 @@ export const trustCurve: SlideDef = {
       text(c, 1130, 322, 'how do i trust my agents more?', { kind: 'body', tone: 'accent', w: 630 })
       const rows: [string, string][] = [
         ['ตัวตรวจ', 'verification'],
-        ['skill ที่สอนให้ทำงานแบบวิศวกร', 'high quality skills that teach agents to work like real software engineers: eg pstack'],
+        ['skill คุณภาพสูง', 'high quality skills that teach agents to work like real software engineers: eg pstack'],
         ['โค้ดที่ทำผิดได้ยาก', 'refactoring/rewriting architecture to be agent friendly (greenfield vs brownfield)'],
       ]
       rows.forEach(([th, en], i) => {
@@ -142,7 +142,7 @@ export const shipped: SlideDef = {
   notes:
     'Lauren เปิดกราฟ GitHub ของเธอ เขียนกำกับว่า i shipped 3000+ PRs in 5 months บนจอเป็นกราฟ commit ราว 3,159 commits เธอบอกว่าไม่ได้โชว์เพื่ออวด แต่ให้เห็นเส้นทาง รูปของกราฟเดินตาม trust curve ในหน้าก่อน เดือนแรกแทบไม่มีงาน เพราะยังเรียน codebase และยังไม่ไว้ใจ agent แล้วงานค่อยขึ้นตามความไว้ใจ เธอเล่าว่าเดือนก่อนส่งไปราว 1,000 PR และยอมรับเองว่าคนจะถามว่าโค้ดพวกนี้ดีจริงไหม ซึ่งเป็นคำถามที่ยุติธรรม ความสูงของแท่งวาดใหม่ให้ใกล้กับที่เห็นบนจอ ไม่ใช่ตัวเลขจริงรายเดือน หน้าถัดไป: ข้อแรกและสำคัญที่สุด คือตัวตรวจ',
   draw(c) {
-    title(c, 'ยิ่งไว้ใจได้มาก งานก็ยิ่งออก\nLauren ส่ง 3,000+ PR ใน 5 เดือน', 2)
+    title(c, 'ยิ่งไว้ใจได้มาก งานก็ยิ่งออก\nLauren เขียนบนจอว่าส่ง 3,000+ PR ใน 5 เดือน', 2)
     text(c, L, 310, 'i shipped 3000+ PRs in 5 months', { kind: 'lead' })
     const base = 850
     line(c, L, base, 1070, base)
