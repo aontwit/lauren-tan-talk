@@ -207,7 +207,7 @@ export const language: SlideDef = {
   draw(c) {
     title(c, 'skill ก็แค่ภาษา เขียนเองได้\nเริ่มจากเรื่องที่ต้องเตือน agent ซ้ำ ๆ', 2)
     text(c, L, 300, '“a skill is just English or language. It’s just markdown.”', { kind: 'lead', tone: 'accent', w: W })
-    text(c, L, 362, '— Lauren Tan ในไลฟ์กับ Matt Pocock', { kind: 'tiny', tone: 'muted' })
+    text(c, L, 362, '— Lauren Tan กล่าวในไลฟ์กับ Matt Pocock', { kind: 'tiny', tone: 'muted' })
     const steps: [string, string][] = [
       ['เปิดแชตเก่า', 'แชตเก่าคือบันทึกวิธีทำงานจริงของเรา'],
       ['หาเรื่องที่พูดซ้ำ', 'ตรงไหนที่ต้องพิมพ์แก้ หรือเตือนทุกรอบ'],
