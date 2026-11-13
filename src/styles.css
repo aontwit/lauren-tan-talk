@@ -1,0 +1,136 @@
+/*
+ * Font lock. Every piece of text in the deck uses Shantell Sans (tldraw's
+ * handwriting font, the one Lauren's slides use) for Latin and Itim for Thai.
+ * Itim is registered as 'Deck Thai' in main.tsx with size-adjust, because at
+ * the same font-size Thai glyphs look smaller than Shantell Sans.
+ * Shantell Sans has no Thai glyphs, so the browser picks Itim for Thai
+ * characters inside the same text run. Both fonts are bundled through
+ * @fontsource, so nothing is fetched from a CDN and nothing falls back to a
+ * system font. The !important rules beat tldraw's own font variables and the
+ * inline font-family on its text-measuring element, so measured width and
+ * rendered width always use the same fonts.
+ */
+:root {
+  --deck-font: 'Shantell Sans', 'Deck Thai', sans-serif;
+  --deck-bg: #f9fafb;
+  --deck-ink: #1d1d1d;
+  --deck-muted: #9fa8b2;
+  --deck-accent: #e16919;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--deck-bg);
+  color: var(--deck-ink);
+  font-family: var(--deck-font);
+}
+
+.tl-container {
+  --tl-font-draw: var(--deck-font) !important;
+  --tl-font-sans: var(--deck-font) !important;
+  --tl-font-serif: var(--deck-font) !important;
+  --tl-font-mono: var(--deck-font) !important;
+}
+
+.tl-container,
+.tl-container *,
+.tl-text-measure,
+.tl-rich-text,
+.tl-rich-text * {
+  font-family: var(--deck-font) !important;
+}
+
+/* Presenting: no selection chrome, no cursor flicker. */
+.deck-show .tl-container {
+  cursor: default !important;
+}
+.deck-show .tl-selection__fg,
+.deck-show .tl-selection__bg {
+  display: none !important;
+}
+
+/* ---------- presenting overlays (screen space, outside the board) ---------- */
+
+.deck-progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  pointer-events: none;
+}
+.deck-progress__bar {
+  height: 100%;
+  background: var(--deck-accent);
+  border-radius: 0 3px 3px 0;
+  transition: width 500ms ease;
+}
+
+/* Remaining clicks on this slide, so the speaker knows more is coming. */
+.deck-steps {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+.deck-steps span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--deck-muted);
+  box-sizing: border-box;
+}
+.deck-steps span.is-on {
+  background: var(--deck-muted);
+}
+
+.deck-goto,
+.deck-banner {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 18px;
+  font-size: 20px;
+  color: var(--deck-ink);
+  background: var(--deck-bg);
+  border: 3px solid var(--deck-ink);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.deck-help {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  font-size: 16px;
+  white-space: nowrap;
+  color: var(--deck-ink);
+  background: var(--deck-bg);
+  border: 2px solid var(--deck-muted);
+  border-radius: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms;
+}
+.deck-help.is-visible {
+  opacity: 1;
+}
+
+.deck-fontcheck {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  font-size: 22px;
+  text-align: center;
+  background: var(--deck-bg);
+}
