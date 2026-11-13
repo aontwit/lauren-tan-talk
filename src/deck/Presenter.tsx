@@ -120,7 +120,13 @@ export function Presenter() {
       </header>
 
       <section style={mainCol}>
-        <div style={screen}>{deckId ? <iframe title="จอที่คนดูเห็น" src={mirror(0)} style={frame} /> : null}</div>
+        <div style={screen}>
+          {deckId ? (
+            <iframe title="จอที่คนดูเห็น" src={mirror(0)} style={frame} />
+          ) : (
+            <div style={emptyScreen}>เปิดเด็คในอีกหน้าต่าง แล้วกด p ที่หน้าเด็ค</div>
+          )}
+        </div>
         <div style={notesBox}>
           {glossed ? (
             pieces.length ? (
@@ -139,7 +145,7 @@ export function Presenter() {
             )
           ) : (
             <form onSubmit={onSubmit} style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span>ใส่รหัสเพื่อเปิดบทพูด (ครั้งเดียวต่อเครื่อง)</span>
+              <span>ใส่รหัสเพื่อเปิดบทพูด (เครื่องนี้จะจำไว้)</span>
               <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoFocus style={input} />
               <button type="submit" style={btn}>
                 เปิด
@@ -180,6 +186,7 @@ const bar: CSSProperties = { gridColumn: '1 / -1', display: 'flex', justifyConte
 const mainCol: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 16, minHeight: 0 }
 const sideCol: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }
 const screen: CSSProperties = { aspectRatio: '16 / 9', width: '100%', border: '3px solid var(--deck-ink)', borderRadius: 12, overflow: 'hidden', background: 'var(--deck-bg)', flexShrink: 0 }
+const emptyScreen: CSSProperties = { height: '100%', display: 'grid', placeItems: 'center', fontSize: 22, color: 'var(--deck-muted)' }
 const frame: CSSProperties = { width: '100%', height: '100%', border: 0, display: 'block' }
 const notesBox: CSSProperties = { flex: 1, minHeight: 0, overflow: 'auto', fontSize: 24, lineHeight: 1.55, borderTop: '3px solid var(--deck-ink)', paddingTop: 14 }
 const btn: CSSProperties = {
