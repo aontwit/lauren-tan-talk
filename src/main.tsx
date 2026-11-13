@@ -41,13 +41,50 @@ async function waitForFonts(): Promise<string[]> {
   return FONT_PROBES.filter((p) => !document.fonts.check(p.css, p.sample)).map((p) => p.css)
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const RELOADED = 'lauren-tan-talk:font-reload'
+
+/**
+ * On a slow or flaky network the first font request can fail, and the deck
+ * must not stop in front of an audience. Try a few times, then reload the
+ * page once; only after that show what is missing.
+ */
+async function fontsWithRetry(root: ReturnType<typeof createRoot>): Promise<string[]> {
+  let missing: string[] = []
+  for (let attempt = 0; attempt < 4; attempt++) {
+    missing = await waitForFonts().catch((e) => [String(e)])
+    if (!missing.length) {
+      try {
+        sessionStorage.removeItem(RELOADED)
+      } catch {
+        /* nothing to clear */
+      }
+      return []
+    }
+    root.render(<div className="deck-fontcheck">กำลังโหลด font…</div>)
+    await sleep(1500)
+  }
+  let reloaded = false
+  try {
+    reloaded = sessionStorage.getItem(RELOADED) === '1'
+    if (!reloaded) sessionStorage.setItem(RELOADED, '1')
+  } catch {
+    reloaded = true
+  }
+  if (!reloaded) {
+    location.reload()
+    await new Promise(() => {})
+  }
+  return missing
+}
+
 async function boot() {
   const root = createRoot(document.getElementById('root')!)
-  const missing = await waitForFonts().catch((e) => [String(e)])
+  const missing = await fontsWithRetry(root)
   if (missing.length) {
     root.render(
       <div className="deck-fontcheck">
-        Fonts did not load: {missing.join(', ')}. Run npm install, then reload.
+        โหลด font ไม่สำเร็จ ({missing.join(', ')}) ตรวจอินเทอร์เน็ตแล้วรีโหลดหน้านี้
       </div>,
     )
     return
