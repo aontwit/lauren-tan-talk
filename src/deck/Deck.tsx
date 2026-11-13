@@ -293,7 +293,10 @@ export function Deck() {
         setHelp(false)
         show(stateRef.current.slide, stateRef.current.step, true)
       } else if (k === '?') setHelp((h) => !h)
-      else if (k === 'f') document.documentElement.requestFullscreen?.()
+      else if (k === 'f') {
+        if (document.fullscreenElement) document.exitFullscreen()
+        else document.documentElement.requestFullscreen?.()
+      }
       else if (k === 'p') window.open(`${location.pathname}?presenter&deck=${deckId}`, 'lauren-tan-presenter', 'width=1400,height=860')
       else return
       e.preventDefault()
