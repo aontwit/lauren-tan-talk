@@ -5,9 +5,9 @@ import { buildDeck, type BuiltDeck } from './build'
 import { findCollisions, reflowStacks } from './draw'
 
 /**
- * "p" opens the speaker window. It works everywhere, but the key is only listed
- * in the help when running locally, so the audience is never told about it.
- * On the public site the notes are encrypted (see vite.config.ts).
+ * "p" opens the speaker window, but on the public site only in a browser that
+ * has unlocked the notes once (src/deck/notes.ts). The key is listed in the
+ * help only when running locally, so the audience is never told about it.
  */
 const LIST_P_IN_HELP = import.meta.env.DEV
 
@@ -21,6 +21,7 @@ const FOLLOW = params.get('follow')
 const OFFSET = Number(params.get('offset') ?? 0)
 import { PitSceneUtil } from './shapes/PitScene'
 import { PortraitUtil } from './shapes/Portrait'
+import { isSpeakerDevice } from './notes'
 import { newDeckId, openChannel, readHash, writeHash, type DeckMessage, type DeckState } from './sync'
 import { SLIDE } from './theme'
 
@@ -84,6 +85,7 @@ export function Deck() {
   const publish = useCallback(() => {
     const deck = deckRef.current
     const { slide, step } = stateRef.current
+    document.documentElement.dataset.slide = `${slide + 1}.${step}`
     if (!FOLLOW) {
       writeHash(stateRef.current)
       channelRef.current?.send({ kind: 'state', from: deckId, state: stateRef.current })
@@ -277,7 +279,7 @@ export function Deck() {
         show(stateRef.current.slide, stateRef.current.step, true)
       } else if (k === '?') setHelp((h) => !h)
       else if (k === 'f') document.documentElement.requestFullscreen?.()
-      else if (k === 'p') window.open(`${location.pathname}?presenter&deck=${deckId}`, 'lauren-tan-presenter', 'width=1400,height=860')
+      else if (k === 'p' && isSpeakerDevice()) window.open(`${location.pathname}?presenter&deck=${deckId}`, 'lauren-tan-presenter', 'width=1400,height=860')
       else return
       e.preventDefault()
     }

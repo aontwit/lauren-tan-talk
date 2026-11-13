@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEven
 import { ROWS, SLIDES } from '../slides'
 import { buildDeck } from './build'
 import { glossAll } from './glossary'
-import { isLocked, savePass, savedPass, unlockNotes } from './notes'
+import { forgetPass, isLocked, savePass, savedPass, unlockNotes } from './notes'
 import { openChannel, type DeckState } from './sync'
 
 /**
@@ -101,8 +101,21 @@ export function Presenter() {
             {left > 0 ? `  ·  ยังมีอีก ${left} คลิกในหน้านี้` : '  ·  คลิกถัดไปเปลี่ยนหน้า'}
           </span>
         </span>
-        <span style={{ color: linked ? 'var(--deck-muted)' : 'var(--deck-accent)', fontSize: 18 }}>
-          {linked ? '● เชื่อมกับจอคนดูแล้ว' : '○ ยังไม่เจอจอคนดู เปิดเด็คแล้วกด p'}
+        <span style={{ display: 'flex', gap: 16, alignItems: 'baseline', fontSize: 18 }}>
+          {locked && notes && (
+            <button
+              onClick={() => {
+                forgetPass()
+                setNotes(null)
+              }}
+              style={{ ...btn, fontSize: 14, padding: '2px 10px', borderWidth: 2 }}
+            >
+              ล็อกบทพูดและลืมรหัสในเครื่องนี้
+            </button>
+          )}
+          <span style={{ color: linked ? 'var(--deck-muted)' : 'var(--deck-accent)' }}>
+            {linked ? '● เชื่อมกับจอคนดูแล้ว' : '○ ยังไม่เจอจอคนดู เปิดเด็คแล้วกด p'}
+          </span>
         </span>
       </header>
 
@@ -126,7 +139,7 @@ export function Presenter() {
             )
           ) : (
             <form onSubmit={onSubmit} style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span>ใส่รหัสเพื่อเปิดบทพูด</span>
+              <span>ใส่รหัสเพื่อเปิดบทพูด (ครั้งเดียวต่อเครื่อง)</span>
               <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} autoFocus style={input} />
               <button type="submit" style={btn}>
                 เปิด

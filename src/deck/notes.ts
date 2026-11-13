@@ -32,10 +32,16 @@ export async function unlockNotes(notes: string[], pass: string): Promise<string
   )
 }
 
-/** The passphrase is kept for this browser tab only, never written anywhere else. */
+/*
+ * The speaker's own browser remembers the passphrase after one successful
+ * unlock. That is also what lets "p" work there: on the public site "p" does
+ * nothing in any browser that has not unlocked the notes.
+ */
+const SPEAKER = 'lauren-tan-talk:speaker'
+
 export function savedPass() {
   try {
-    return sessionStorage.getItem(STORE) ?? ''
+    return localStorage.getItem(STORE) ?? ''
   } catch {
     return ''
   }
@@ -43,8 +49,28 @@ export function savedPass() {
 
 export function savePass(pass: string) {
   try {
-    sessionStorage.setItem(STORE, pass)
+    localStorage.setItem(STORE, pass)
+    localStorage.setItem(SPEAKER, '1')
   } catch {
     /* private mode: the speaker types it again next time */
+  }
+}
+
+export function forgetPass() {
+  try {
+    localStorage.removeItem(STORE)
+    localStorage.removeItem(SPEAKER)
+  } catch {
+    /* nothing stored */
+  }
+}
+
+/** True on the speaker's machine (or when running locally). */
+export function isSpeakerDevice() {
+  if (import.meta.env.DEV) return true
+  try {
+    return localStorage.getItem(SPEAKER) === '1'
+  } catch {
+    return false
   }
 }
