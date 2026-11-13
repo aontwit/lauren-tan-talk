@@ -19,7 +19,7 @@ export const caseIntro: SlideDef = {
     cards.forEach(([h, b], i) => {
       at(c, i, () => card(c, L + i * 567, 380, 530, 290, { head: h, headKind: 'lead', body: b, bodyKind: 'body' }))
     })
-    at(c, 3, () => text(c, L, 730, 'เครื่องตรวจอัตโนมัติมองไม่เห็นปัญหาพวกนี้ ต้องมี**ตัวตรวจแบบ Lauren** และขั้นที่คนทำคู่กับ agent', { kind: 'lead', w: W }))
+    at(c, 3, () => text(c, L, 730, 'เครื่องตรวจอัตโนมัติมองไม่เห็นปัญหาพวกนี้\nต้องมี**ตัวตรวจแบบ Lauren** และขั้นที่คนทำคู่กับ agent', { kind: 'lead', w: W }))
   },
 }
 
