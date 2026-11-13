@@ -73,4 +73,4 @@ export const W = R - L
 export const TOP = 96
 export const FOOT = 1008
 
-export const SECTIONS = ['ตัวตรวจ', 'skill คุณภาพสูง', 'โค้ดที่ทำผิดได้ยาก', 'pitwall ของฉัน', 'เริ่มยังไง'] as const
+export const SECTIONS = ['ตัวตรวจ', 'skill คุณภาพสูง', 'โค้ดที่ทำผิดได้ยาก', 'pitwall ของผม', 'เริ่มยังไง'] as const

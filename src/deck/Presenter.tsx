@@ -85,7 +85,8 @@ export function Presenter() {
   const cur = SLIDES[state.slide]
   const nxt = SLIDES[state.slide + 1]
   const left = (maxSteps[state.slide] ?? 0) - state.step
-  const pieces = glossed?.[state.slide] ?? []
+  const note = notes?.[state.slide] ?? ''
+  const terms = (glossed?.[state.slide] ?? []).filter((p) => p.meaning)
   const mirror = (offset: number) => `${location.pathname}?follow=${deckId}&offset=${offset}`
 
   return (
@@ -129,17 +130,31 @@ export function Presenter() {
         </div>
         <div style={notesBox}>
           {glossed ? (
-            pieces.length ? (
-              pieces.map((p, i) =>
-                p.meaning ? (
-                  <span key={i}>
-                    <b>{p.text}</b>
-                    <span style={{ color: 'var(--deck-accent)' }}> ({p.meaning})</span>
-                  </span>
-                ) : (
-                  <span key={i}>{p.text}</span>
-                ),
-              )
+            note ? (
+              <>
+                {/* Spoken lines first; "ที่มา:" and "หน้าถัดไป:" lines are for the speaker's eyes only. */}
+                {note.split('\n').map((l, i) =>
+                  /^(ที่มา|หน้าถัดไป):/.test(l) ? (
+                    <p key={i} style={aside}>
+                      {l}
+                    </p>
+                  ) : (
+                    <p key={i} style={para}>
+                      {l}
+                    </p>
+                  ),
+                )}
+                {terms.length > 0 && (
+                  <dl style={termList}>
+                    {terms.map((t) => (
+                      <div key={t.text}>
+                        <dt style={{ display: 'inline', fontWeight: 'bold' }}>{t.text}</dt>
+                        <dd style={{ display: 'inline', margin: 0 }}> {t.meaning}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </>
             ) : (
               <span style={{ color: 'var(--deck-muted)' }}>{empty ? 'เวอร์ชันนี้ไม่มีบทพูด' : 'หน้านี้ไม่มีบทพูด'}</span>
             )
@@ -189,6 +204,9 @@ const screen: CSSProperties = { aspectRatio: '16 / 9', width: '100%', border: '3
 const emptyScreen: CSSProperties = { height: '100%', display: 'grid', placeItems: 'center', fontSize: 22, color: 'var(--deck-muted)' }
 const frame: CSSProperties = { width: '100%', height: '100%', border: 0, display: 'block', pointerEvents: 'none' }
 const notesBox: CSSProperties = { flex: 1, minHeight: 0, overflow: 'auto', fontSize: 24, lineHeight: 1.55, borderTop: '3px solid var(--deck-ink)', paddingTop: 14 }
+const para: CSSProperties = { margin: '0 0 0.7em' }
+const aside: CSSProperties = { margin: '0 0 0.3em', fontSize: 18, color: 'var(--deck-muted)' }
+const termList: CSSProperties = { margin: '0.8em 0 0', paddingTop: 10, borderTop: '2px dashed var(--deck-muted)', fontSize: 18, color: 'var(--deck-muted)', display: 'grid', gap: 4 }
 const btn: CSSProperties = {
   font: 'inherit',
   fontSize: 20,
