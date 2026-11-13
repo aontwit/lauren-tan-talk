@@ -137,7 +137,7 @@ export const faqSafety: SlideDef = {
       ['agent ส่งงานเอง จะพังงานคนอื่นไหม?', 'merge ได้แค่ develop และต้องผ่านทุกด่าน push ตรงหรือข้ามด่านตรวจไม่ได้'],
       ['ถ้า agent ทำผิด ใครรับผิดชอบ?', 'เจ้าของ repo เหมือนเดิม ตอนเช้าสุ่มตรวจ พลาดก็ revert แล้วแก้ที่ระบบ'],
       ['ถ้า agent ไม่มั่นใจ หรือติด?', 'ถ้ามั่นใจไม่ถึง 95% ให้พักงานพร้อมเหตุผล ไม่เดา และลองแต่ละวิธีไม่เกินราว 10 นาทีก่อนส่งต่อให้คน'],
-      ['ทำไมงานแต่ละชิ้นยังทำทีละชิ้น?', 'เว็บต้องเปิดที่ port เดียว และ agent สลับ branch เอง ส่วนในงานหนึ่งชิ้นมี agent หลายตัวช่วยกัน'],
+      ['ทำไม marketplace ยังรันทีละงาน?', 'pitwall รันพร้อมกันได้ แต่ backend รับแค่ localhost:3000 งานที่ต้องเปิดเว็บจึงต้องผลัดกันใช้ port นี้'],
     ])
   },
 }
@@ -174,6 +174,8 @@ export const sources: SlideDef = {
       'pstack · github.com/cursor/plugins/tree/main/pstack\nคู่มือ 10 บท · pstack/docs/guide\nThe Complete Guide to pstack Pt. 1–2 · x.com/poteto\nเวิร์กช็อป Grokbot · youtube.com/watch?v=ONeM6YDmvqA\nไลฟ์กับ Matt Pocock (2 ต.ค. 2026) · youtube.com/live/MN9dGgmLyso',
       { kind: 'small', w: 800 },
     )
+    text(c, L, 660, '**pitwall ของฉัน**', { kind: 'body', tone: 'accent', w: 800 })
+    text(c, L, 720, 'เว็บคู่มือ · pitwall.apiwit.xyz\nโค้ด · github.com/aontwit/pitwall (MIT)', { kind: 'small', w: 800 })
     text(c, 980, 260, '**บทสรุปและโพสต์ภาษาไทย**', { kind: 'body', tone: 'accent', w: 812 })
     text(
       c,

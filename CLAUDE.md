@@ -27,7 +27,7 @@
 - คำพูดในเครื่องหมายคำพูดต้องเป็นคำพูดจริงจาก transcript ห้ามแต่งหรือแปลงเป็นคำคม
 - ตัวเลขที่เปลี่ยนได้ (จำนวน skill, ตำแหน่งงานของ Lauren) ต้องเช็กใหม่ และเขียนว่านับเมื่อไร
 - อะไรที่ยืนยันไม่ได้ ห้ามขึ้นสไลด์ ใส่ได้แค่ในบทพูดพร้อมบอกว่ามาจากไหน
-- ข้อมูล pitwall ตรวจกับไฟล์จริงใน repo marketplace (`.claude/agent-loop.md`, `package.json`)
+- ข้อมูล pitwall ตรวจกับต้นทาง: README และ CHANGELOG ของ `aontwit/pitwall` และเว็บ https://pitwall.apiwit.xyz/ (ความสามารถ เช่น `parallel` และ `merge: auto`) แล้วตรวจกับค่าที่ใช้จริงใน repo marketplace (`.claude/agent-loop.md`, `package.json`) แยกให้ชัดว่าอะไรคือสิ่งที่ pitwall ทำได้ และอะไรคือที่ตั้งไว้ใน repo นั้น
 
 ## หน้าตา: ห้าม AI slop
 
